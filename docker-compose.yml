@@ -15,7 +15,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 20
-  #keycloak-postgres
+
   keycloak-postgres:
     image: postgres:17
     container_name: keycloak-postgres
@@ -30,6 +30,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 20
+
   person-postgres-exporter:
      image: prometheuscommunity/postgres-exporter:latest
      container_name: person-postgres-exporter
@@ -40,6 +41,7 @@ services:
        DATA_SOURCE_NAME: postgresql://postgres@person-postgres:5432/postgres?sslmode=disable
      ports:
        - "9188:9187"
+       -
   keycloak-postgres-exporter:
     image: prometheuscommunity/postgres-exporter:latest
     container_name: keycloak-postgres-exporter
@@ -50,6 +52,7 @@ services:
       DATA_SOURCE_NAME: postgresql://keycloak@keycloak-postgres:5432/keycloak?sslmode=disable
     ports:
       - "9189:9187"
+      -
   keycloak:
     image: quay.io/keycloak/keycloak:26.2
     container_name: individuals-keycloak
@@ -78,6 +81,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 30
+
   nexus:
     image: sonatype/nexus3:3.76.0
     container_name: nexus
@@ -88,6 +92,7 @@ services:
       NEXUS_SECURITY_RANDOMPASSWORD: false
     volumes:
       - nexus-data:/nexus-data
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -100,6 +105,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
   loki:
     image: grafana/loki:2.9.2
     container_name: loki
@@ -112,6 +118,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
   tempo:
     image: grafana/tempo:2.4.1
     container_name: tempo
@@ -121,6 +128,7 @@ services:
       - tempo_data:/var/tempo
     ports:
       - "3200:3200"
+
   alloy:
     ports:
       - "9080:9080" # http ui
@@ -138,6 +146,7 @@ services:
       - --server.http.listen-addr=0.0.0.0:9080
       - --storage.path=/var/lib/alloy/data
       - /etc/alloy/config.alloy
+      -
   grafana:
     container_name: grafana
     ports:
@@ -165,6 +174,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+
   #persons-api
   #api
 
