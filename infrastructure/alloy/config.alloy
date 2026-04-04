@@ -5,7 +5,7 @@ loki.write "local" {
 }
 
 discovery.docker "containers" {
-    host                = unix:///var/run/docker.sock
+    host                = "unix:///var/run/docker.sock"
     refresh_interval    = 5s
 }
 
@@ -15,7 +15,7 @@ discovery.relabel "containers" {
     rule {
         source_labels   = ["__meta_docker_container_name"]
         regex           = "/(.*)"
-        target_label    "container"
+        target_label    = "container"
     }
 
     rule {
@@ -43,7 +43,7 @@ discovery.relabel "containers" {
 loki.source.docker "containers" {
         host = "unix:///var/run/docker.sock"
         targets = discovery.docker.containers.targets
-        relabel_rules = discover.relabel.containers.rules
+        relabel_rules = discovery.relabel.containers.rules
         forward_to = [loki.write.local.receiver]
 }
 
