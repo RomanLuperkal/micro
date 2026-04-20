@@ -1,56 +1,55 @@
-auth_enabled: false
+auth_enabled: false # Отключает проверку токенов
 
 server:
-  http_listen_post: 3100
+  http_listen_port: 3100 # Порт для HTTP API (запросы от Grafana)
 
 ingester:
-  lifecycler:
-    address: 0.0.0.0
+
+  lifecycler: # Настройки регистрации инжестера в кольце (Ring)
+    address: 0.0.0.0 # IP-адрес, который инжестер сообщает другим узлам (0.0.0.0 = все интерфейсы)
     ring:
       kvstore:
-        store: summary
-      replication_factor: 1
-    final_sleep: 0s
-  chunk_idle_period: 5m
-  chunk_retain_period: 30s
-  max_transfer_retries: 0
+        store: inmemory
+      replication_factor: 1 # Количество копий данных (1 = без репликации, экономит место)
+    final_sleep: 0s # Пауза перед остановкой процесса (0s = мгновенный выход
+
+  chunk_idle_period: 5m # Закрыть чанк, если в него 5 мин не поступали новые логи
+  chunk_retain_period: 30s # Держать закрытый чанк в памяти еще 30 сек (на случай опоздавших логов)
+  max_transfer_retries: 0 # Не пытаться передать чанки другому узлу при рестарте (0 = выкл, ок для single-node)
+
+# СХЕМА ХРАНЕНИЯ (Версионирование структуры данных)
 
 schema_config:
   configs:
     - from: 2018-04-15
-      store: boltdb
+      store: boltdb-shipper           # Движок индекса: локальные файлы BoltDB, которые периодически архивируются
       object_store: filesystem
       schema: v11
       index:
-        prefix: index_
-        period: 168h
+        prefix: index_ # Префикс имен файлов индекса
+        period: 24h # Создавать новый файл индекса каждые 24 часа (ротация)
 
 storage_config:
-  boltdb:
-    directory: /loki/index
-  filesystem:
-    directory: /loki/chunks
+  boltdb_shipper:                     # настройки для движка boltdb-shipper
+    active_index_directory: /loki/boltdb-shipper-active  # Папка для активных (пишущихся) индексов
+    cache_location: /loki/boltdb-shipper-cache           # Папка для кэша загруженных индексов
+    cache_ttl: 24h                    # Сколько времени хранить индекс в кэше после последнего использования
+    shared_store: filesystem          # Тип хранилища для "отгруженных" (archived) индексов
+
+  filesystem:                         # Настройки простого файлового хранилища
+    directory: /loki/chunks           # Папка, где хранятся файлы чанков (сами логи)
 
 limits_config:
-  enforce_metric_name: false
-  reject_old_samples: true
-  reject_old_samples_max_age: 168h
-  ingestion_rate_mb: 8
-  ingestion_burst_size_md: 10
+  enforce_metric_name: false          # Не требовать наличие метки __name__
+  reject_old_samples: true            # Включить отклонение логов с устаревшими временными метками
+  reject_old_samples_max_age: 168h    # Отклонять логи, если их timestamp старше 7 дней (168 часов)
+  ingestion_rate_mb: 8                # Максимальная скорость приема данных: 8 МБ в секунду
+  ingestion_burst_size_mb: 10         # Максимальный кратковременный всплеск нагрузки: 10 МБ
 
-chunk_storage_config:
-  max_look_back_period: 0s
+table_manager:                        # Компонент управления жизненным циклом таблиц
+  retention_deletes_enabled: true     # Включить автоматическое удаление старых данных
+  retention_period: 672h              # Хранить данные 28 дней (672 часа), затем удалять
 
-table_manager:
-  chunk_tables_provisioning:
-    inactive_read_throughput: 0
-    inactive_write_throughput: 0
-    provisioned_read_throughput: 0
-    provisioned_write_throughput: 0
-  index_tables_provisioning:
-    inactive_read_throughput: 0
-    inactive_write_throughput: 0
-    provisioned_read_throughput: 0
-    provisioned_write_throughput: 0
-  retention_deletes_enabled: true
-  retention_period: 672h
+common:
+  path_prefix: /loki                  # Базовый путь для всех внутренних директорий Loki
+  replication_factor: 1               # Глобальный фактор репликации (должен совпадать с ingester.ring.replication_factor)
