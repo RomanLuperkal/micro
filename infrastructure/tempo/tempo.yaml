@@ -1,22 +1,22 @@
 server:
-  http_listen_port: 3200
+  http_listen_port: 3200 # Порт, на котором Tempo будет слушать HTTP-запросы от Grafana и отдавать метрики/статус здоровья.
 
 distributor:
   receivers:
     otlp:
       protocols:
-        grpc:
-        http:
+        grpc: # Включает прием данных по протоколу gRPC (порт 4317 по умолчанию).
+        http: # Включает прием данных по протоколу HTTP/Protobuf (порт 4318 по умолчанию).
 
 ingester:
-  trace_idle_period: 10s
+  trace_idle_period: 10s # Максимальное время ожидания новых спанов для конкретного traceID. Если за 10 секунд нет новых данных, трассировка считается завершенной и сбрасывается в хранилище.
 
 compactor:
   compaction:
-    compacted_block_retention: 48h
+    compacted_block_retention: 48h # Срок хранения сжатых блоков данных. Трейсы, старее 48 часов, будут автоматически удалены из хранилища.
 
 storage:
   trace:
-    backend: local
+    backend: local # Тип бэкенда для хранения данных. 'local' означает использование локальной файловой системы сервера
     local:
-      path: /var/tempo/traces
+      path: /var/tempo/traces # Абсолютный путь в файловой системе, где будут физически храниться файлы трейсов (блоки Parquet, индексы и bloom-фильтры).
