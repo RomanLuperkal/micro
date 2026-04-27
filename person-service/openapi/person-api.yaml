@@ -149,17 +149,19 @@ components:
       properties:
         firstName:
           type: string
-          format: email
+          maxLength: 64
         lastName:
           type: string
-          format: email
+          maxLength: 64
         email:
           type: string
           format: email
         passport_number:
           type: string
+          maxLength: 64
         phone_number:
           type: string
+          maxLength: 64
         address:
           $ref: '#/components/schemas/AddressWriteDto'
 

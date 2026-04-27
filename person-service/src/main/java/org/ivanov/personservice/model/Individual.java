@@ -6,8 +6,6 @@ import lombok.Setter;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
-import javax.validation.constraints.Size;
-
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 @Setter
 @Getter
@@ -15,11 +13,9 @@ import javax.validation.constraints.Size;
 @Table(name = "individuals", schema = "person")
 public class Individual extends BaseModel {
 
-    @Size(max = 64)
     @Column(name = "passport_number", nullable = false, unique = true, length = 64)
     private String passportNumber;
 
-    @Size(max = 64)
     @Column(name = "phone_number", nullable = false, unique = true, length = 64)
     private String phoneNumber;
 
