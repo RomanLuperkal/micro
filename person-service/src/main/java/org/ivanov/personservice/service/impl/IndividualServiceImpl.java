@@ -1,6 +1,5 @@
 package org.ivanov.personservice.service.impl;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +13,7 @@ import org.ivanov.personservice.mapper.IndividualMapper;
 import org.ivanov.personservice.repository.IndividualRepository;
 import org.ivanov.personservice.service.IndividualService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,7 +27,6 @@ public class IndividualServiceImpl implements IndividualService {
     private final IndividualMapper individualMapper;
     private final IndividualRepository individualRepository;
 
-    @Transactional
     @Override
     public IndividualWriteResponseDto register(IndividualWriteDto writeDto) {
         var individual = individualMapper.to(writeDto);
@@ -37,6 +36,7 @@ public class IndividualServiceImpl implements IndividualService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public IndividualPageDto findByEmails(List<String> emails) {
         var individuals = individualRepository.findAllByEmails(emails);
         var from = individualMapper.from(individuals);
@@ -46,6 +46,7 @@ public class IndividualServiceImpl implements IndividualService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public IndividualDto findById(UUID id) {
         var individual = individualRepository.findById(id)
                 .orElseThrow(() -> new PersonException("Individual not found by id=[%s]", id));
@@ -61,16 +62,14 @@ public class IndividualServiceImpl implements IndividualService {
     }
 
     @Override
-    @Transactional
     public void hardDelete(UUID id) {
         var individual = individualRepository.findById(id)
                 .orElseThrow(() -> new PersonException("Individual not found by id=[%s]", id));
-        log.info("IN - hardDelete: individual with id = [{}] successfully deleted", id);
         individualRepository.delete(individual);
+        log.info("IN - hardDelete: individual with id = [{}] successfully deleted", id);
     }
 
     @Override
-    @Transactional
     public IndividualWriteResponseDto update(UUID id, IndividualWriteDto writeDto) {
         var individual = individualRepository.findById(id)
                 .orElseThrow(() -> new PersonException("Individual not found by id=[%s]", id));

@@ -16,7 +16,7 @@ import static org.mapstruct.InjectionStrategy.CONSTRUCTOR;
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 @Mapper(componentModel = SPRING, injectionStrategy = CONSTRUCTOR)
-//@Setter(onMethod_ = @Autowired)
+@Setter(onMethod_ = @Autowired)
 public abstract class AddressMapper {
 
     protected CountryRepository countryRepository;

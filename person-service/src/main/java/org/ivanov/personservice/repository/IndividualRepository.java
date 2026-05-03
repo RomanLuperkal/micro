@@ -5,14 +5,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
 
+@Repository
 public interface IndividualRepository extends JpaRepository<Individual, UUID> {
 
     @Query(""" 
-            FROM Individual i WHERE (:emails) IS NULL OR i.user.email IN :emails
+            FROM Individual i WHERE :emails IS NULL  OR i.user.email IN :emails
             """)
     List<Individual> findAllByEmails(@Param("emails") List<String> emails);
 

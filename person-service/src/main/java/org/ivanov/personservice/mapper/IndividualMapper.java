@@ -25,7 +25,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
                 AddressMapper.class,
         }
 )
-//@Setter(onMethod_ = @Autowired)
+@Setter(onMethod_ = @Autowired)
 public abstract class IndividualMapper {
 
     protected DateTimeUtil dateTimeUtil;
